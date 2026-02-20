@@ -2,7 +2,7 @@
 
 An internal AI-powered support platform built to replace a fragmented workflow where agents juggled Outlook, Sentry, and the production database across separate tabs to answer every ticket.
 
-The platform centralises the full support loop: emails arrive from Outlook, an AI pipeline classifies them, pulls context from three data sources, and drafts a reply in the customer's language — all before the agent opens the ticket. The agent reviews, edits if needed, and sends. The reply lands in the customer's original Outlook thread.
+The platform centralises the full support loop: emails arrive from Outlook, an AI pipeline classifies them, pulls context from three data sources, and drafts a reply in the customer's language, all before the agent opens the ticket. The agent reviews, edits if needed, and sends. The reply lands in the customer's original Outlook thread.
 
 ---
 
