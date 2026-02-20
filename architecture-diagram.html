@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studyflash Support — Architecture Diagram</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0e0b1e;
+    font-family: 'Syne', sans-serif;
+    color: #e8e4ff;
+    min-height: 100vh;
+    padding: 32px 24px 60px;
+    overflow-x: auto;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .header h1 {
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: #7c63e8;
+    margin-bottom: 8px;
+  }
+  .header h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -.02em;
+  }
+  .header p {
+    font-size: 13px;
+    color: #6b5fa8;
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: #8878c0;
+  }
+  .legend-dot {
+    width: 22px;
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  /* ── Main diagram wrapper ── */
+  .diagram-scroll {
+    overflow-x: auto;
+    padding-bottom: 16px;
+  }
+  .diagram {
+    min-width: 1100px;
+    position: relative;
+  }
+
+  /* ── Lane labels row ── */
+  .lane-labels {
+    display: grid;
+    grid-template-columns: 260px 1fr 1fr;
+    gap: 0;
+    margin-bottom: 0;
+  }
+  .lane-label {
+    text-align: center;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    padding: 10px 0 14px;
+    font-weight: 500;
+  }
+  .lane-label.ext   { color: #e8956d; border-bottom: 2px solid rgba(232,149,109,.25); }
+  .lane-label.back  { color: #7c63e8; border-bottom: 2px solid rgba(124,99,232,.25); }
+  .lane-label.front { color: #4aade8; border-bottom: 2px solid rgba(74,173,232,.25); }
+
+  /* ── Lanes container ── */
+  .lanes {
+    display: grid;
+    grid-template-columns: 260px 1fr 1fr;
+    gap: 0;
+    position: relative;
+    align-items: start;
+  }
+  .lane {
+    padding: 24px 20px;
+    border-right: 1px solid rgba(255,255,255,.05);
+    position: relative;
+  }
+  .lane:last-child { border-right: none; }
+
+  /* ── Flow sections ── */
+  .flow-label {
+    font-size: 9px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    color: #3d3568;
+    background: rgba(255,255,255,.03);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    display: inline-block;
+  }
+
+  /* ── Node ── */
+  .node {
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    position: relative;
+    cursor: default;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .node:hover {
+    transform: translateY(-2px);
+  }
+  .node-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .01em;
+    margin-bottom: 3px;
+  }
+  .node-sub {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    line-height: 1.5;
+    opacity: .7;
+  }
+  .node-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  /* External nodes */
+  .node-ext {
+    background: rgba(232,149,109,.08);
+    border: 1px solid rgba(232,149,109,.3);
+    color: #f0b896;
+  }
+  .node-ext .node-tag { background: rgba(232,149,109,.15); color: #e8956d; }
+  .node-ext:hover { box-shadow: 0 6px 24px rgba(232,149,109,.15); }
+
+  /* Backend nodes */
+  .node-back {
+    background: rgba(124,99,232,.08);
+    border: 1px solid rgba(124,99,232,.3);
+    color: #c4b8ff;
+  }
+  .node-back .node-tag { background: rgba(124,99,232,.15); color: #9d87f5; }
+  .node-back:hover { box-shadow: 0 6px 24px rgba(124,99,232,.15); }
+
+  /* AI pipeline nodes */
+  .node-ai {
+    background: rgba(79,53,210,.12);
+    border: 1px solid rgba(79,53,210,.4);
+    color: #c4b8ff;
+  }
+  .node-ai .node-tag { background: rgba(79,53,210,.2); color: #8b6ff5; }
+  .node-ai:hover { box-shadow: 0 6px 24px rgba(79,53,210,.2); }
+
+  /* Frontend nodes */
+  .node-front {
+    background: rgba(74,173,232,.08);
+    border: 1px solid rgba(74,173,232,.3);
+    color: #a8d8f5;
+  }
+  .node-front .node-tag { background: rgba(74,173,232,.15); color: #4aade8; }
+  .node-front:hover { box-shadow: 0 6px 24px rgba(74,173,232,.15); }
+
+  /* DB/infra nodes */
+  .node-db {
+    background: rgba(74,232,158,.06);
+    border: 1px solid rgba(74,232,158,.25);
+    color: #9de8c8;
+  }
+  .node-db .node-tag { background: rgba(74,232,158,.1); color: #4ae89e; }
+
+  /* ── Pipeline stages block ── */
+  .pipeline-block {
+    border: 1px solid rgba(124,99,232,.35);
+    border-radius: 12px;
+    padding: 14px 14px 10px;
+    background: rgba(79,53,210,.06);
+    margin-bottom: 8px;
+  }
+  .pipeline-block-label {
+    font-size: 9px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    color: #6b5fa8;
+    margin-bottom: 10px;
+  }
+  .stage {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .stage-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(124,99,232,.3);
+    color: #9d87f5;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .stage-body { flex: 1; }
+  .stage-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #c4b8ff;
+    margin-bottom: 2px;
+  }
+  .stage-desc {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: #6b5fa8;
+    line-height: 1.45;
+  }
+
+  /* ── Arrow labels ── */
+  .arrow-label {
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    color: #4d4280;
+    text-align: center;
+    padding: 3px 0 6px;
+  }
+
+  /* ── Down arrow ── */
+  .arrow-down {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 2px 0;
+  }
+  .arrow-down .line {
+    width: 1px;
+    height: 18px;
+  }
+  .arrow-down .tip {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+  }
+
+  /* Arrow colors */
+  .arr-purple .line { background: rgba(124,99,232,.5); }
+  .arr-purple .tip  { border-top: 6px solid rgba(124,99,232,.5); }
+  .arr-blue .line   { background: rgba(74,173,232,.5); }
+  .arr-blue .tip    { border-top: 6px solid rgba(74,173,232,.5); }
+  .arr-green .line  { background: rgba(74,232,158,.4); }
+  .arr-green .tip   { border-top: 6px solid rgba(74,232,158,.4); }
+  .arr-orange .line { background: rgba(232,149,109,.4); }
+  .arr-orange .tip  { border-top: 6px solid rgba(232,149,109,.4); }
+  .arr-grey .line   { background: rgba(255,255,255,.15); }
+  .arr-grey .tip    { border-top: 6px solid rgba(255,255,255,.15); }
+
+  /* ── Cross-lane arrows (SVG overlay) ── */
+  svg.arrows-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  /* ── Infra row ── */
+  .infra-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 32px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px;
+    background: rgba(255,255,255,.02);
+  }
+  .infra-label {
+    grid-column: 1/-1;
+    font-size: 9px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    color: #3d3568;
+    margin-bottom: 4px;
+  }
+
+  /* ── Divider between flows ── */
+  .flow-divider {
+    border: none;
+    border-top: 1px dashed rgba(255,255,255,.07);
+    margin: 20px 0;
+  }
+
+  /* ── Tooltip on hover ── */
+  .node[data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%);
+    background: #1e1840;
+    border: 1px solid rgba(124,99,232,.4);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: #a898e8;
+    max-width: 260px;        /* NEW */
+    white-space: normal;     /* CHANGE */
+    word-wrap: break-word;   /* NEW */
+    line-height: 1.4;        /* NEW */
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Studyflash Support Platform</h1>
+  <h2>System Architecture</h2>
+  <p>hover nodes for design rationale · left → right: External · Backend · Frontend</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#7c63e8"></div> AI pipeline flow</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4aade8"></div> Agent reply flow</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4ae89e"></div> WebSocket (real-time)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,.2)"></div> DB read / write</div>
+</div>
+
+<div class="diagram-scroll">
+<div class="diagram" id="diagram">
+
+  <!-- Lane headers -->
+  <div class="lane-labels">
+    <div class="lane-label ext">External</div>
+    <div class="lane-label back">Backend</div>
+    <div class="lane-label front">Frontend</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- INBOUND FLOW                                            -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="lanes" id="inbound-lanes">
+
+    <!-- EXTERNAL lane -->
+    <div class="lane" id="ext-lane">
+      <div class="flow-label">Inbound email</div>
+
+      <div class="node node-ext" id="n-outlook" data-tip="Why Graph API: push webhooks, no polling needed">
+        <div class="node-title">Outlook Mailbox</div>
+        <div class="node-sub">support@studyflash.ch</div>
+        <div class="node-tag">Microsoft 365</div>
+      </div>
+
+      <div class="arrow-down arr-orange">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+      <div class="arrow-label">webhook push</div>
+
+      <div class="node node-ext" id="n-graph-in" data-tip="OAuth2 client credentials — token cached in memory">
+        <div class="node-title">Microsoft Graph API</div>
+        <div class="node-sub">POST /notifications<br>on every new email</div>
+        <div class="node-tag">HTTPS webhook</div>
+      </div>
+
+      <hr class="flow-divider">
+      <div class="flow-label">Agent reply</div>
+
+      <div class="node node-ext" id="n-graph-out" data-tip="Reply is sent via Graph API — lands in same Outlook thread">
+        <div class="node-title">Microsoft Graph API</div>
+        <div class="node-sub">sendReply → same<br>Outlook thread</div>
+        <div class="node-tag">real email thread</div>
+      </div>
+
+      <div class="arrow-down arr-orange">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+
+      <div class="node node-ext" id="n-customer" data-tip="Customer sees a real reply in their inbox, not a support ticket copy">
+        <div class="node-title">Customer Inbox</div>
+        <div class="node-sub">reply visible in original<br>email thread</div>
+        <div class="node-tag">Outlook / Gmail</div>
+      </div>
+    </div>
+
+    <!-- BACKEND lane -->
+    <div class="lane" id="back-lane">
+      <div class="flow-label">Inbound email</div>
+
+      <div class="node node-back" id="n-webhook" data-tip="Validates Graph API token, filters subscription renewals vs real messages">
+        <div class="node-title">webhook.py</div>
+        <div class="node-sub">validates token<br>reads notification payload</div>
+        <div class="node-tag">POST /api/v1/webhook</div>
+      </div>
+
+      <div class="arrow-down arr-purple">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+
+      <div class="node node-back" id="n-ingestion" data-tip="Idempotent: deduplicates by Graph message ID — safe to receive same email twice">
+        <div class="node-title">ingestion_service.py</div>
+        <div class="node-sub">deduplicates · creates<br>Ticket + Message in DB</div>
+        <div class="node-tag">idempotent</div>
+      </div>
+
+      <div class="arrow-down arr-purple">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+
+      <div class="node node-back" id="n-redis" data-tip="Why Redis queue: HTTP response returns immediately — no timeout risk on slow LLM calls">
+        <div class="node-title">Redis Queue</div>
+        <div class="node-sub">task enqueued<br>HTTP returns 200 instantly</div>
+        <div class="node-tag">fire-and-forget</div>
+      </div>
+
+      <div class="arrow-down arr-purple">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+
+      <div class="node node-back" id="n-celery" data-tip="Why Celery not threads: retries, scheduling, task visibility in production">
+        <div class="node-title">Celery Worker</div>
+        <div class="node-sub">tasks.py orchestrates<br>the 4-stage pipeline</div>
+        <div class="node-tag">solo pool (Windows)</div>
+      </div>
+
+      <div class="arrow-down arr-purple">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+
+      <div class="pipeline-block" id="n-pipeline">
+        <div class="pipeline-block-label">pipeline.py — 4 stages</div>
+        <div class="stage">
+          <div class="stage-num">1</div>
+          <div class="stage-body">
+            <div class="stage-name">Classify</div>
+            <div class="stage-desc">category · priority<br>language · summary</div>
+          </div>
+        </div>
+        <div class="stage">
+          <div class="stage-num">2</div>
+          <div class="stage-body">
+            <div class="stage-name">Enrich</div>
+            <div class="stage-desc">SF DB · Sentry<br>PostHog lookups</div>
+          </div>
+        </div>
+        <div class="stage">
+          <div class="stage-num">3</div>
+          <div class="stage-body">
+            <div class="stage-name">Draft</div>
+            <div class="stage-desc">Grok llama-3.3-70b<br>replies in detected language</div>
+          </div>
+        </div>
+        <div class="stage">
+          <div class="stage-num">4</div>
+          <div class="stage-body">
+            <div class="stage-name">Assign</div>
+            <div class="stage-desc">matches ticket<br>to best agent</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow-down arr-grey">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+      <div class="arrow-label">writes enrichment + draft</div>
+
+      <div class="node node-db" id="n-postgres" data-tip="PostgreSQL: tickets, messages, enrichment, ai_drafts, agents tables">
+        <div class="node-title">PostgreSQL</div>
+        <div class="node-sub">:5433 · all persistent state</div>
+        <div class="node-tag">SQLAlchemy async</div>
+      </div>
+
+      <div class="arrow-down arr-green">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+      <div class="arrow-label">pipeline_complete event</div>
+
+      <div class="node node-back" id="n-ws-manager" data-tip="Why WebSocket not polling: instant push — no 2s delay waiting for next poll">
+        <div class="node-title">ws_manager.py</div>
+        <div class="node-sub">broadcasts to all<br>connected agents</div>
+        <div class="node-tag">WebSocket broadcast</div>
+      </div>
+
+      <hr class="flow-divider">
+      <div class="flow-label">Agent reply</div>
+
+      <div class="node node-back" id="n-tickets-router" data-tip="tickets.py router: list, get, reply, update, WebSocket endpoints">
+        <div class="node-title">tickets.py</div>
+        <div class="node-sub">POST /{id}/reply<br>validates + persists</div>
+        <div class="node-tag">FastAPI router</div>
+      </div>
+
+      <div class="arrow-down arr-blue">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+
+      <div class="node node-back" id="n-graph-svc" data-tip="graph_service.py: OAuth2 token caching, sends via Graph API createReply endpoint">
+        <div class="node-title">graph_service.py</div>
+        <div class="node-sub">sendReply via<br>Graph API</div>
+        <div class="node-tag">same thread ↗</div>
+      </div>
+    </div>
+
+    <!-- FRONTEND lane -->
+    <div class="lane" id="front-lane">
+      <div class="flow-label">Inbound email</div>
+
+      <div class="node node-front" id="n-ws-hook" data-tip="useWebSocket.ts: auto-reconnecting hook, exponential backoff on disconnect">
+        <div class="node-title">useWebSocket.ts</div>
+        <div class="node-sub">receives pipeline_complete<br>auto-reconnects</div>
+        <div class="node-tag">WebSocket hook</div>
+      </div>
+
+      <div class="arrow-down arr-green">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+
+      <div class="node node-front" id="n-zustand" data-tip="Why Zustand not Redux: 350 lines vs 1000+, no full-tree re-renders, simpler actions">
+        <div class="node-title">Zustand Store</div>
+        <div class="node-sub">tickets · activeTicket<br>isDraftPending · filters</div>
+        <div class="node-tag">global state</div>
+      </div>
+
+      <div class="arrow-down arr-green">
+        <div class="line"></div><div class="tip"></div>
+      </div>
+
+      <div class="node node-front" id="n-draft-panel" data-tip="AIDraftPanel: shows draft, confidence %, model used — Use Draft / Regenerate / Dismiss">
+        <div class="node-title">AIDraftPanel</div>
+        <div class="node-sub">draft appears instantly<br>confidence · model label</div>
+        <div class="node-tag">✦ AI draft ready</div>
+      </div>
+
+      <hr class="flow-divider">
+      <div class="flow-label">Agent reply</div>
+
+      <div class="node node-front" id="n-ticket-detail" data-tip="TicketDetail: full message thread + reply box + enrichment context panel">
+        <div class="node-title">TicketDetail</div>
+        <div class="node-sub">message thread<br>reply box</div>
+        <div class="node-tag">agent workspace</div>
+      </div>
+
+      <div class="arrow-down arr-blue">
+        <div class="line" style="height:12px"></div><div class="tip"></div>
+      </div>
+
+      <div class="node node-front" id="n-enrichment" data-tip="EnrichmentPanel: SF user data, Sentry errors, PostHog sessions, similar past tickets">
+        <div class="node-title">EnrichmentPanel</div>
+        <div class="node-sub">SF user · Sentry errors<br>PostHog · similar tickets</div>
+        <div class="node-tag">context panel</div>
+      </div>
+
+      <div class="arrow-down arr-blue">
+        <div class="line" style="height:12px"></div><div class="tip"></div>
+      </div>
+
+      <div class="node node-front" id="n-api-client" data-tip="api/client.ts: typed HTTP client for all FastAPI endpoints">
+        <div class="node-title">api/client.ts</div>
+        <div class="node-sub">POST /tickets/{id}/reply<br>typed HTTP client</div>
+        <div class="node-tag">fetch wrapper</div>
+      </div>
+    </div>
+
+  </div><!-- /lanes -->
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- INFRA ROW                                               -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="infra-row">
+    <div class="infra-label">Infrastructure</div>
+    <div class="node node-db" style="margin-bottom:0" data-tip="Port 5433 via Docker. tickets, messages, enrichment, ai_drafts, support_agents tables">
+      <div class="node-title">PostgreSQL :5433</div>
+      <div class="node-sub">main support DB</div>
+      <div class="node-tag">Docker</div>
+    </div>
+    <div class="node node-db" style="margin-bottom:0" data-tip="db/0 = Celery broker, db/1 = result backend — separated to avoid key collisions">
+      <div class="node-title">Redis :6379</div>
+      <div class="node-sub">broker db/0 · results db/1</div>
+      <div class="node-tag">Docker</div>
+    </div>
+    <div class="node node-db" style="margin-bottom:0" data-tip="studyflash_mock: users, refunds, sessions — read-only for enrichment lookups">
+      <div class="node-title">SF Mock DB</div>
+      <div class="node-sub">users · refunds · sessions</div>
+      <div class="node-tag">read-only enrichment</div>
+    </div>
+    <div class="node node-ai" style="margin-bottom:0" data-tip="Why Grok not GPT-4o: free tier, OpenAI-compatible — swap with zero code change">
+      <div class="node-title">Grok API</div>
+      <div class="node-sub">llama-3.3-70b-versatile<br>OpenAI-compatible</div>
+      <div class="node-tag">free tier</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SVG CROSS-LANE ARROWS                                   -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <svg class="arrows-overlay" id="svg-arrows"></svg>
+
+</div><!-- /diagram -->
+</div><!-- /scroll -->
+
+<script>
+// Draw cross-lane arrows after layout
+function midX(el) {
+  const d = document.getElementById('diagram').getBoundingClientRect()
+  const r = el.getBoundingClientRect()
+  return r.left - d.left + r.width / 2
+}
+function midY(el) {
+  const d = document.getElementById('diagram').getBoundingClientRect()
+  const r = el.getBoundingClientRect()
+  return r.top - d.top + r.height / 2
+}
+function rightX(el) {
+  const d = document.getElementById('diagram').getBoundingClientRect()
+  const r = el.getBoundingClientRect()
+  return r.right - d.left
+}
+function leftX(el) {
+  const d = document.getElementById('diagram').getBoundingClientRect()
+  const r = el.getBoundingClientRect()
+  return r.left - d.left
+}
+function topY(el) {
+  const d = document.getElementById('diagram').getBoundingClientRect()
+  const r = el.getBoundingClientRect()
+  return r.top - d.top
+}
+function botY(el) {
+  const d = document.getElementById('diagram').getBoundingClientRect()
+  const r = el.getBoundingClientRect()
+  return r.bottom - d.top
+}
+
+function makePath(x1,y1,x2,y2,color,label,dashed=false) {
+  const svg = document.getElementById('svg-arrows')
+  const mx = (x1+x2)/2
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path')
+  const d = `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`
+  path.setAttribute('d', d)
+  path.setAttribute('stroke', color)
+  path.setAttribute('stroke-width', '1.5')
+  path.setAttribute('fill', 'none')
+  path.setAttribute('opacity', '0.55')
+  if (dashed) path.setAttribute('stroke-dasharray', '5,4')
+
+  // arrowhead marker
+  const markerId = 'arrow-' + Math.random().toString(36).slice(2)
+  const defs = svg.querySelector('defs') || (() => {
+    const d = document.createElementNS('http://www.w3.org/2000/svg','defs')
+    svg.prepend(d); return d
+  })()
+  const marker = document.createElementNS('http://www.w3.org/2000/svg','marker')
+  marker.setAttribute('id', markerId)
+  marker.setAttribute('markerWidth','8')
+  marker.setAttribute('markerHeight','8')
+  marker.setAttribute('refX','6')
+  marker.setAttribute('refY','3')
+  marker.setAttribute('orient','auto')
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon')
+  poly.setAttribute('points','0 0, 6 3, 0 6')
+  poly.setAttribute('fill', color)
+  poly.setAttribute('opacity','0.7')
+  marker.appendChild(poly)
+  defs.appendChild(marker)
+  path.setAttribute('marker-end', `url(#${markerId})`)
+  svg.appendChild(path)
+
+  if (label) {
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text')
+    text.setAttribute('x', String(mx))
+    text.setAttribute('y', String((y1+y2)/2 - 5))
+    text.setAttribute('text-anchor','middle')
+    text.setAttribute('fill', color)
+    text.setAttribute('opacity','0.6')
+    text.setAttribute('font-size','9')
+    text.setAttribute('font-family','DM Mono, monospace')
+    text.textContent = label
+    svg.appendChild(text)
+  }
+}
+
+function drawArrows() {
+  const svg = document.getElementById('svg-arrows')
+  svg.innerHTML = ''
+
+  // Graph API → webhook.py (inbound)
+  const graphIn = document.getElementById('n-graph-in')
+  const webhook = document.getElementById('n-webhook')
+  makePath(
+    rightX(graphIn), midY(graphIn),
+    leftX(webhook),  midY(webhook),
+    '#e8956d', 'POST /webhook'
+  )
+
+  // ws_manager → useWebSocket (real-time)
+  const wsMan = document.getElementById('n-ws-manager')
+  const wsHook = document.getElementById('n-ws-hook')
+  makePath(
+    rightX(wsMan), midY(wsMan),
+    leftX(wsHook), midY(wsHook),
+    '#4ae89e', 'WebSocket'
+  )
+
+  // api/client → tickets.py (agent reply)
+  const apiClient = document.getElementById('n-api-client')
+  const ticketsRouter = document.getElementById('n-tickets-router')
+  makePath(
+    leftX(apiClient),      midY(apiClient),
+    rightX(ticketsRouter), midY(ticketsRouter),
+    '#4aade8', 'POST /reply'
+  )
+
+  // graph_service → Graph API out (reply path)
+  const graphSvc = document.getElementById('n-graph-svc')
+  const graphOut = document.getElementById('n-graph-out')
+  makePath(
+    leftX(graphSvc), midY(graphSvc),
+    rightX(graphOut), midY(graphOut),
+    '#4aade8', ''
+  )
+
+  // Zustand → TicketDetail (agent uses state)
+  const zustand = document.getElementById('n-zustand')
+  const ticketDetail = document.getElementById('n-ticket-detail')
+  makePath(
+    midX(zustand), botY(zustand),
+    midX(ticketDetail), topY(ticketDetail),
+    '#4aade8', '', true
+  )
+}
+
+// Run after fonts/layout settle
+window.addEventListener('load', () => setTimeout(drawArrows, 200))
+window.addEventListener('resize', () => setTimeout(drawArrows, 100))
+</script>
+</body>
+</html>

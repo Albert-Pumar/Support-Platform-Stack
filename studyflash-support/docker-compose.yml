@@ -1,0 +1,68 @@
+
+services:
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: studyflash_support
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── FastAPI App ─────────────────────────────────────────────────────────────
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    env_file: .env
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── Celery Worker ───────────────────────────────────────────────────────────
+  worker:
+    build: .
+    command: celery -A app.workers.tasks.celery_app worker --loglevel=info --concurrency=4
+    env_file: .env
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - postgres
+
+  # ── Celery Beat (scheduler) ─────────────────────────────────────────────────
+  beat:
+    build: .
+    command: celery -A app.workers.tasks.celery_app beat --loglevel=info
+    env_file: .env
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
