@@ -1,4 +1,4 @@
-# Studyflash Support — Frontend
+# Support — Frontend
 
 React + TypeScript + Vite SPA for the internal support platform.
 
@@ -93,7 +93,7 @@ Events handled in store.handleWSEvent():
 ## Setup
 
 ```bash
-cd studyflash-frontend
+cd frontend
 npm install
 npm run dev   # starts on http://localhost:5173
 
