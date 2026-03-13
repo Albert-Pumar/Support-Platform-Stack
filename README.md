@@ -1,4 +1,4 @@
-# Studyflash Support Platform
+# Support Platform
 
 An internal AI-powered support platform built to replace a fragmented workflow where agents juggled Outlook, Sentry, and the production database across separate tabs to answer every ticket.
 
@@ -65,8 +65,8 @@ Mailbox           ingestion_service.py      →    Zustand store
 ## Project structure
 
 ```
-studyflash-platform/
-├── studyflash-support/          # Backend (FastAPI)
+platform/
+├── backend/          # Backend (FastAPI)
 │   ├── app/
 │   │   ├── core/                # Config, database connection
 │   │   ├── models/              # SQLAlchemy models (6 tables)
@@ -78,7 +78,7 @@ studyflash-platform/
 │   ├── requirements.txt
 │   └── .env.example
 │
-├── studyflash-frontend/         # Frontend (React + TypeScript)
+├── frontend/         # Frontend (React + TypeScript)
 │   └── src/
 │       ├── components/
 │       │   ├── ai/              # AIDraftPanel
@@ -109,7 +109,7 @@ studyflash-platform/
 ### 1. Start infrastructure
 
 ```bash
-cd studyflash-support
+cd backend
 docker-compose up postgres redis -d
 ```
 
@@ -155,7 +155,7 @@ This creates 6 tickets in German, Dutch, and Italian with full enrichment data a
 ### 7. Start the frontend
 
 ```bash
-cd ../studyflash-frontend
+cd ../frontend
 npm install
 npm run dev
 ```
@@ -170,7 +170,7 @@ The platform works in two modes:
 
 **Demo mode** (no Azure setup needed) — run `seed_demo.py` to populate tickets directly into the database. The full UI works including AI drafts, enrichment panels, and ticket management. Replies won't send real emails.
 
-**Live mode** — requires an Azure App Registration with `Mail.Read`, `Mail.ReadWrite`, and `Mail.Send` permissions, plus ngrok for the webhook URL in local development. Full setup instructions in [`studyflash-support/README.md`](studyflash-support/README.md).
+**Live mode** — requires an Azure App Registration with `Mail.Read`, `Mail.ReadWrite`, and `Mail.Send` permissions, plus ngrok for the webhook URL in local development. Full setup instructions in [`backend/README.md`](backend/README.md).
 
 ---
 
