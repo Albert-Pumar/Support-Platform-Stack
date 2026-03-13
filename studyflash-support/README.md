@@ -1,4 +1,4 @@
-# Studyflash Support Platform — Backend
+# Support Platform — Backend
 
 FastAPI backend for the internal support ticketing platform with full Microsoft Outlook parity.
 
@@ -33,7 +33,7 @@ FastAPI Webhook Endpoint
                        │                          └── GPT-4o: draft reply in user's language
                        │
                        └── task_enrich_ticket (parallel)
-                                ├── Studyflash Postgres: user data, plan, refund history
+                                ├── Postgres: user data, plan, refund history
                                 ├── Sentry API: recent errors for this user
                                 └── PostHog API: session recordings
 
