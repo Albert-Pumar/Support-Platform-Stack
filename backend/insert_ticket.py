@@ -4,7 +4,7 @@ import uuid
 conn = psycopg.connect(
     host="127.0.0.1",
     port=5433,
-    dbname="studyflash_support",
+    dbname="support_db",
     user="postgres",
     password="password"
 )

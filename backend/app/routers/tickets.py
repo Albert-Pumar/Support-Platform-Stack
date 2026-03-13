@@ -107,8 +107,8 @@ async def reply_to_ticket(
 
     reply_html = body.get("body_html", "")
     reply_text = body.get("body_text", reply_html)
-    agent_name = body.get("agent_name", "Studyflash Support")
-    agent_email = body.get("agent_email", "support@studyflash.ch")
+    agent_name = body.get("agent_name", "Support Agent")
+    agent_email = body.get("agent_email", "agent@support.ch")
 
     if not reply_html:
         raise HTTPException(status_code=422, detail="body_html is required")

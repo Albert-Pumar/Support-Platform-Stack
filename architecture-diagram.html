@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Studyflash Support — Architecture Diagram</title>
+<title>Support Platform — Architecture Diagram</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap');
 
@@ -357,7 +357,7 @@
 <body>
 
 <div class="header">
-  <h1>Studyflash Support Platform</h1>
+  <h1>Support Platform</h1>
   <h2>System Architecture</h2>
   <p>hover nodes for design rationale · left → right: External · Backend · Frontend</p>
 </div>
@@ -390,7 +390,7 @@
 
       <div class="node node-ext" id="n-outlook" data-tip="Why Graph API: push webhooks, no polling needed">
         <div class="node-title">Outlook Mailbox</div>
-        <div class="node-sub">support@studyflash.ch</div>
+        <div class="node-sub">agent@support.ch</div>
         <div class="node-tag">Microsoft 365</div>
       </div>
 
@@ -489,7 +489,7 @@
           <div class="stage-num">3</div>
           <div class="stage-body">
             <div class="stage-name">Draft</div>
-            <div class="stage-desc">Grok llama-3.3-70b<br>replies in detected language</div>
+            <div class="stage-desc">Groq llama-3.3-70b<br>replies in detected language</div>
           </div>
         </div>
         <div class="stage">
@@ -620,13 +620,13 @@
       <div class="node-sub">broker db/0 · results db/1</div>
       <div class="node-tag">Docker</div>
     </div>
-    <div class="node node-db" style="margin-bottom:0" data-tip="studyflash_mock: users, refunds, sessions — read-only for enrichment lookups">
+    <div class="node node-db" style="margin-bottom:0" data-tip="support_mock: users, refunds, sessions — read-only for enrichment lookups">
       <div class="node-title">SF Mock DB</div>
       <div class="node-sub">users · refunds · sessions</div>
       <div class="node-tag">read-only enrichment</div>
     </div>
-    <div class="node node-ai" style="margin-bottom:0" data-tip="Why Grok not GPT-4o: free tier, OpenAI-compatible — swap with zero code change">
-      <div class="node-title">Grok API</div>
+    <div class="node node-ai" style="margin-bottom:0" data-tip="Why Groq not GPT-4o: free tier, OpenAI-compatible — swap with zero code change">
+      <div class="node-title">Groq API</div>
       <div class="node-sub">llama-3.3-70b-versatile<br>OpenAI-compatible</div>
       <div class="node-tag">free tier</div>
     </div>

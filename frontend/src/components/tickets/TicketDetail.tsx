@@ -5,7 +5,7 @@ import { AIDraftPanel } from '../ai/AIDraftPanel'
 import type { Message } from '../../types'
 
 // Hardcoded current agent — in prod, comes from auth context
-const CURRENT_AGENT = { name: 'Albert Pumar', email: 'albertpumar@studyflash.ch' }
+const CURRENT_AGENT = { name: 'Albert Pumar', email: 'albertpumar@support.ch' }
 
 export function TicketDetail() {
   const activeTicket = useStore(s => s.activeTicket)

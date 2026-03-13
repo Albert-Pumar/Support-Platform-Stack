@@ -40,7 +40,7 @@ export function Sidebar({ activeView, onViewChange }: Props) {
           SF
         </div>
         <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>
-          Studyflash
+          Support Platform
           <span style={{ color: 'rgba(255,255,255,.6)', fontWeight: 400, fontSize: 11, display: 'block' }}>Support Platform</span>
         </div>
       </div>

@@ -1,14 +1,14 @@
 """
 seed_demo.py
 ============
-Seeds the studyflash_support database with:
+Seeds the support_db database with:
   - 5 real support tickets from uploaded files (DE, NL, NL, DE, IT)
   - 1 English translation of ticket_3917 (so we have EN + DE versions)
-  - A mock SF database (studyflash_mock) with user records for each sender
+  - A mock SF database (support_mock) with user records for each sender
   - Full enrichment data (sf_user_data, sentry_events, posthog_recordings, similar_tickets)
     inserted directly — no need for live Sentry/PostHog APIs
 
-Run from inside the studyflash-support/ folder:
+Run from inside the support-platform/ folder:
   python seed_demo.py
 
 Requirements: psycopg (pip install psycopg)
@@ -21,9 +21,9 @@ from datetime import datetime, timezone, timedelta
 import random
 
 # ── Connection ──────────────────────────────────────────────────────────────────
-SUPPORT_DB = dict(host="127.0.0.1", port=5433, dbname="studyflash_support",
+SUPPORT_DB = dict(host="127.0.0.1", port=5433, dbname="support_db",
                   user="postgres", password="password")
-MOCK_SF_DB = dict(host="127.0.0.1", port=5433, dbname="studyflash_mock",
+MOCK_SF_DB = dict(host="127.0.0.1", port=5433, dbname="support_mock",
                   user="postgres", password="password")
 
 def now(offset_hours=0):
@@ -34,7 +34,7 @@ def iso(dt):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# STEP 1 — Create and populate the mock Studyflash database
+# STEP 1 — Create and populate the mock database
 # ═══════════════════════════════════════════════════════════════════════════════
 
 print("\n── STEP 1: Creating mock SF database ──────────────────────────────")
@@ -44,12 +44,12 @@ with psycopg.connect(host="127.0.0.1", port=5433, dbname="postgres",
                      user="postgres", password="password",
                      autocommit=True) as conn:
     cur = conn.cursor()
-    cur.execute("SELECT 1 FROM pg_database WHERE datname = 'studyflash_mock'")
+    cur.execute("SELECT 1 FROM pg_database WHERE datname = 'support_mock'")
     if not cur.fetchone():
-        cur.execute("CREATE DATABASE studyflash_mock")
-        print("  Created database: studyflash_mock")
+        cur.execute("CREATE DATABASE support_mock")
+        print("  Created database: support_mock")
     else:
-        print("  Database studyflash_mock already exists")
+        print("  Database support_mock already exists")
 
 with psycopg.connect(**MOCK_SF_DB) as conn:
     cur = conn.cursor()
@@ -147,7 +147,7 @@ with psycopg.connect(**MOCK_SF_DB) as conn:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# STEP 2 — Insert tickets into studyflash_support
+# STEP 2 — Insert tickets into db_support
 # ═══════════════════════════════════════════════════════════════════════════════
 
 print("\n── STEP 2: Inserting tickets ───────────────────────────────────────")
@@ -181,7 +181,7 @@ with psycopg.connect(**SUPPORT_DB) as conn:
                 "a tacit contract renewal is still valid provided that consumers are given a "
                 "cancellation notice period of at most one month. My contract was concluded after "
                 "01.03.2022, so this law applies to it.\n\n"
-                "I hereby cancel my contract with StudyFlash (account: angelina.arendt@gmail.com) "
+                "I hereby cancel my contract with the company (account: angelina.arendt@gmail.com) "
                 "with effect from the earliest possible date. Since my contract was automatically "
                 "renewed after the expiry of the minimum term, I am exercising my statutory right "
                 "of cancellation with one month's notice pursuant to § 309 No. 9 BGB.\n\n"
@@ -213,7 +213,7 @@ with psycopg.connect(**SUPPORT_DB) as conn:
                 "von höchstens einem Monat erhalten.\n"
                 "Der Vertrag wurde nach dem 01.03.2022 abgeschlossen somit gilt das Gesetz für "
                 "diesen Vertrag.\n\n"
-                "hiermit kündige ich meinen Vertrag bei StudyFlash "
+                "hiermit kündige ich meinen Vertrag bei company "
                 "(Account: angelina.arendt@gmail.com) zum nächstmöglichen Zeitpunkt.\n"
                 "Da sich mein Vertrag nach Ablauf der Mindestlaufzeit automatisch verlängert hat, "
                 "mache ich von meinem gesetzlichen Kündigungsrecht mit einer Frist von einem Monat "
@@ -292,7 +292,7 @@ with psycopg.connect(**SUPPORT_DB) as conn:
             "priority": "urgent",
             "tags": ["billing-invoice", "auto-renewal", "legal-threat", "paypal-dispute", "ai-draft"],
             "body": (
-                "Spett.le Studyflash,\n\n"
+                "Spett.le company,\n\n"
                 "con la presente intendo contestare formalmente l'addebito relativo al "
                 "rinnovo automatico dell'abbonamento annuale a mio carico, avvenuto in data "
                 "26/01/2026.\n\n"
@@ -612,7 +612,7 @@ AI_DRAFTS = {
             "You will receive a formal written confirmation of the cancellation date by "
             "separate email shortly.\n\n"
             "Kind regards,\n"
-            "Studyflash Support Team"
+            "Support Team"
         ),
         "confidence": 0.91,
         "model": "llama-3.3-70b-versatile",
@@ -629,7 +629,7 @@ AI_DRAFTS = {
             "Eine schriftliche Kündigungsbestätigung mit dem genauen Enddatum erhalten "
             "Sie in Kürze per separater E-Mail.\n\n"
             "Mit freundlichen Grüßen,\n"
-            "Studyflash Support Team"
+            "Support Team"
         ),
         "confidence": 0.93,
         "model": "llama-3.3-70b-versatile",
@@ -646,7 +646,7 @@ AI_DRAFTS = {
             "en er zullen geen verdere kosten in rekening worden gebracht.\n\n"
             "Onze excuses voor het ongemak.\n\n"
             "Met vriendelijke groeten,\n"
-            "Studyflash Support Team"
+            "Support Team"
         ),
         "confidence": 0.87,
         "model": "llama-3.3-70b-versatile",
@@ -660,10 +660,10 @@ AI_DRAFTS = {
             "dat we momenteel onderzoeken.\n\n"
             "We hebben de 30 gratis dagen handmatig aan uw account toegevoegd. "
             "U kunt dit controleren door opnieuw in te loggen op de app.\n\n"
-            "Onze excuses voor de vertraging en bedankt voor het delen van Studyflash "
+            "Onze excuses voor de vertraging en bedankt voor het delen van company "
             "met uw vrienden!\n\n"
             "Met vriendelijke groeten,\n"
-            "Studyflash Support Team"
+            "Support Team"
         ),
         "confidence": 0.82,
         "model": "llama-3.3-70b-versatile",
@@ -677,9 +677,9 @@ AI_DRAFTS = {
             "ist daher nicht unbegrenzt möglich, sondern auf die monatlich enthaltenen "
             "Credits beschränkt — es gibt jedoch die Möglichkeit, zusätzliche Credit-Pakete "
             "zu erwerben.\n\n"
-            "Weitere Details finden Sie in unserem Help Center: https://help.studyflash.ch\n\n"
+            "Weitere Details finden Sie in unserem Help Center: https://help.support.ch\n\n"
             "Mit freundlichen Grüßen,\n"
-            "Studyflash Support Team"
+            "Support Team"
         ),
         "confidence": 0.88,
         "model": "llama-3.3-70b-versatile",
@@ -699,7 +699,7 @@ AI_DRAFTS = {
             "• L'assenza di qualsiasi addebito futuro sul suo account.\n\n"
             "Riceverà una conferma scritta separata via email.\n\n"
             "Cordiali saluti,\n"
-            "Il team di supporto Studyflash"
+            "Il team di supporto"
         ),
         "confidence": 0.89,
         "model": "llama-3.3-70b-versatile",
@@ -742,7 +742,7 @@ try:
         env_content = f.read()
 
     # Update or insert SF_DATABASE_URL
-    mock_url = "postgresql+psycopg://postgres:password@localhost:5433/studyflash_mock"
+    mock_url = "postgresql+psycopg://postgres:password@localhost:5433/support_mock"
     if "SF_DATABASE_URL=" in env_content:
         import re
         env_content = re.sub(
@@ -758,7 +758,7 @@ try:
     print(f"  ✓ SF_DATABASE_URL updated to: {mock_url}")
 except FileNotFoundError:
     print(f"  ⚠ .env not found — set this manually:")
-    print(f"    SF_DATABASE_URL=postgresql+psycopg://postgres:password@localhost:5433/studyflash_mock")
+    print(f"    SF_DATABASE_URL=postgresql+psycopg://postgres:password@localhost:5433/support_mock")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -775,7 +775,7 @@ print("    🇳🇱 #" + str(max_num+3) + " Klarna user    — NL subscription c
 print("    🇳🇱 #" + str(max_num+4) + " Referral user  — NL free trial not received")
 print("    🇩🇪 #" + str(max_num+5) + " Podcast user   — DE credits question")
 print("    🇮🇹 #" + str(max_num+6) + " Gaia Pistone   — IT formal dispute")
-print(f"\n  Mock SF database: studyflash_mock")
+print(f"\n  Mock SF database: support_mock")
 print("    5 users with plan, billing, refund history")
 print(f"\n  Enrichment: all 6 tickets have")
 print("    sf_user_data, sentry_events, posthog_recordings, similar_tickets")

@@ -32,7 +32,7 @@ log = structlog.get_logger(__name__)
 settings = get_settings()
 
 celery_app = Celery(
-    "studyflash_support",
+    "support_platform",
     broker=settings.celery_broker_url,
     backend=settings.celery_result_backend,
 )
@@ -322,7 +322,7 @@ async def _regenerate_draft_async(ticket_id: str, feedback: str | None) -> dict[
     default_retry_delay=60,
 )
 def task_enrich_ticket(self, ticket_id: str) -> dict[str, Any]:
-    """Fetch enrichment data from Sentry, PostHog, and Studyflash DB in parallel."""
+    """Fetch enrichment data from Sentry, PostHog, and DB in parallel."""
     log.info("task.enrich.start", ticket_id=ticket_id)
     try:
         return _run(_enrich_ticket_async(ticket_id))
@@ -399,7 +399,7 @@ async def _fetch_sentry_events(email: str) -> list | None:
     import httpx
     async with httpx.AsyncClient() as client:
         resp = await client.get(
-            "https://sentry.io/api/0/projects/studyflash/studyflash-app/events/",
+            "https://sentry.io/api/0/projects/support_platform/support-app/events/",
             headers={"Authorization": f"Bearer {settings.sentry_dsn}"},
             params={"query": f"user.email:{email}", "limit": 5},
             timeout=10,

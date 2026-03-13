@@ -51,7 +51,7 @@ class MessageSource(str, enum.Enum):
 # ── Models ─────────────────────────────────────────────────────────────────────
 
 class SupportAgent(Base):
-    """Internal Studyflash team members who handle tickets."""
+    """Internal Support team members who handle tickets."""
     __tablename__ = "support_agents"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -189,7 +189,7 @@ class Message(Base):
 
 class TicketEnrichment(Base):
     """
-    Enrichment data pulled from Sentry, PostHog, and the Studyflash Postgres DB.
+    Enrichment data pulled from Sentry, PostHog, and the Postgres DB.
     Stored as JSONB blobs — schema is intentionally flexible.
     Refreshed on demand or on ticket open.
     """
@@ -200,7 +200,7 @@ class TicketEnrichment(Base):
         UUID(as_uuid=True), ForeignKey("tickets.id", ondelete="CASCADE"), nullable=False, unique=True
     )
 
-    # Data from the main Studyflash DB (plan, signup date, usage stats, etc.)
+    # Data from the main DB (plan, signup date, usage stats, etc.)
     sf_user_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     # Sentry: recent errors for this user

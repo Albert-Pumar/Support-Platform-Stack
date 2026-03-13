@@ -216,7 +216,7 @@ async def fetch_conversation_messages(conversation_id: str) -> list[dict[str, An
 async def send_reply(
     original_message_id: str,
     body_html: str,
-    sender_name: str = "Studyflash Support",
+    sender_name: str = "Support Agent",
 ) -> None:
     """
     Send a reply to an email using Graph API's /reply endpoint.

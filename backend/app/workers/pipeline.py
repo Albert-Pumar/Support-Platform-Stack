@@ -383,18 +383,18 @@ def _post_process_draft(draft: str, language: str) -> str:
     draft = re.sub(r"\*(.+?)\*", r"\1", draft)
 
     # Ensure sign-off exists
-    sign_offs = ["studyflash support", "mit freundlichen", "freundliche grüsse",
+    sign_offs = ["support", "mit freundlichen", "freundliche grüsse",
                  "kind regards", "cordialement", "cordiali saluti"]
     has_signoff = any(s in draft.lower() for s in sign_offs)
     if not has_signoff:
         # Append appropriate sign-off based on language
         sign_off_map = {
-            "de": "\n\nFreundliche Grüsse,\nStudyflash Support Team",
-            "fr": "\n\nCordialement,\nL'équipe Studyflash Support",
-            "it": "\n\nCordiali saluti,\nIl team di supporto Studyflash",
-            "en": "\n\nKind regards,\nStudyflash Support Team",
+            "de": "\n\nFreundliche Grüsse,\n Support Team",
+            "fr": "\n\nCordialement,\nL'équipe Support",
+            "it": "\n\nCordiali saluti,\nIl team di supporto",
+            "en": "\n\nKind regards,\n Support Team",
         }
-        draft += sign_off_map.get(language, "\n\nKind regards,\nStudyflash Support Team")
+        draft += sign_off_map.get(language, "\n\nKind regards,\n Support Team")
 
     return draft.strip()
 

@@ -1,5 +1,5 @@
 """
-Studyflash Support Platform — FastAPI Application
+Support Platform — FastAPI Application
 """
 
 import structlog
@@ -65,7 +65,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Studyflash Support Platform",
+    title="Support Platform",
     version="0.1.0",
     description="Internal support ticketing platform with Outlook parity",
     lifespan=lifespan,

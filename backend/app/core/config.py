@@ -11,8 +11,8 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:5173"
 
     # Database
-    database_url: str = "postgresql+asyncpg://postgres:password@localhost:5432/studyflash_support"
-    sf_database_url: str = ""  # existing Studyflash DB (read-only)
+    database_url: str = "postgresql+asyncpg://postgres:password@localhost:5432/backend"
+    sf_database_url: str = ""  # existing DB (read-only)
 
     # Redis
     redis_url: str = "redis://localhost:6379/0"
@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     azure_tenant_id: str = ""
     azure_client_id: str = ""
     azure_client_secret: str = ""
-    outlook_mailbox: str = "support@studyflash.ch"
+    outlook_mailbox: str = "agent@support.ch"
     graph_webhook_secret: str = "dev-webhook-secret"
     webhook_base_url: str = "https://your-ngrok-id.ngrok.io"
 
